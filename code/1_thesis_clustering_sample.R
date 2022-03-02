@@ -22,6 +22,7 @@ uniq_t <- unique(thesis$pdf_name)
 clust_table <- data.frame(matrix(0,
                                  length(uniq_t), 13))
 
+#Create columns for sliding windows (i.e. dates_sw, litverz_sw) & position in which the maximun value is located (i.e. dates_p, litverz_p)
 names(clust_table) <- c("pdf_name",
                    "dates_sw", "dates_p",
                    "litverz_sw", "litverz_p",
@@ -36,9 +37,8 @@ for (i in 1:length(uniq_t)){
   
   print(i)
   thesis_i <- thesis[thesis$pdf_name == uniq_t[i],] 
-  
+  #Catch mistakes
   prop_na <- sum(is.na(thesis_i))/(nrow(thesis_i)*ncol(thesis_i))
-  prop_na
   clust_table$p_na[i] <- prop_na
   if (prop_na < 0.8){
   # No issues then 1
@@ -110,25 +110,11 @@ scaled <- scale(clust_table_clean[,c(3,5,7,9,11)])
 set.seed(777)
 
 ## Select k
-# Number of Clusters vs. the Total Within Sum of Squares
-
+# Number of Clusters vs. the Total Within Sum of Squares (WSS)
 fviz_nbclust(scaled, kmeans, method = "wss")
 
 # Silo
 fviz_nbclust(scaled, kmeans, method = "silhouette", k.max=15)
-?fviz_nbclust
-# Gap stat
-#calculate gap statistic based on number of clusters
-gap_stat <- clusGap(scaled,
-                    FUN = kmeans,
-                    nstart = 25,
-                    K.max = 15,
-                    B = 50,
-                    iter.max = 30)
-
-#plot number of clusters vs. gap statistic
-fviz_gap_stat(gap_stat, 
-              maxSE = list(method = "Tibs2001SEmax"))
 
 ### Final clustering
 km <- kmeans(scaled, centers = 11, nstart = 30)
