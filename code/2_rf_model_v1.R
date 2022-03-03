@@ -50,7 +50,7 @@ train_table <- train_table[,c("bibtest","dates","litverz","biblio","sekundaerlit
 
 train_table_clean <- train_table[complete.cases(train_table),]
 
-ssize <- floor(0.7*min(table(train_table_clean$bibtest)))
+ssize <- floor(0.632*min(table(train_table_clean$bibtest)))
 
 rf <- randomForest(y=as.factor(train_table_clean$bibtest),
                    x=train_table_clean[,2:ncol(train_table_clean)],
