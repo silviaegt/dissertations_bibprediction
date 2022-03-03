@@ -6,7 +6,7 @@ library("factoextra")
 library("cluster")
 
 # Load data
-thesis <- read_csv("proportions_bibliography_clean_2022b.csv")
+thesis <- read_csv("2022_proportions_bibliography.csv")
 
 # Selected variables:
 
