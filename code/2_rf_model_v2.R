@@ -7,7 +7,6 @@ library("dplyr")
 library("randomForest")
 
 # Load data
-#thesis <- read_csv("data/20220219_bib_sample_etiquetado.csv")
 thesis <- read_csv("data/20220321_bib_sample_etiquetado.csv")
 
 # Selected variables:
@@ -68,6 +67,8 @@ rf <- randomForest(y=as.factor(train_table_clean$bibtest),
                    importance = TRUE)
 plot(rf)
 rf$confusion
+importance <- as.data.frame(importance(rf, type=1))
+
 varImpPlot(rf)
 
 # Add OOB prediction
@@ -75,7 +76,7 @@ train_table_clean$bibtest_rf <- rf$predicted
 table(train_table_clean$bibtest, train_table_clean$bibtest)
 ?randomForest
 # Prediction on all thesis
-thesis <- read_csv("data/20220301_proportions_bibliography_complete.csv")
+thesis <- read_csv("data/proportions_bibliography_complete_20220321.csv")
 
 # Selected variables:
 # dates (proportion of dates vs total words on page)
@@ -84,7 +85,6 @@ thesis <- read_csv("data/20220301_proportions_bibliography_complete.csv")
 # pubplaces (publication places)
 # abkuerzungen (abbreviations)
 # position
-head(labs)
 
 # All thesis
 uniq_t <- unique(thesis$pdf_name)
@@ -116,12 +116,12 @@ full_table <- bind_rows(thesis_list, .id = "column_label")
 
 full_table <- full_table[,c("pdf_name", "dates","litverz","biblio","sekundaerlit","waerke","pubplaces",
                             "abkuerzungen","pub_fr","pub_paris","pub_ny","pub_mue","pub_stu","pub_tue","pub_ber","kw_hrsg",        
-                            "kw_ed","kw_bd","kw_nr","kw_ders","n_pag", "position","dates_sw","litverz_sw","biblio_sw","pubplaces_sw","abkuerzungen_sw")]
+                            "kw_ed","kw_bd","kw_nr","kw_ders","n_pag", "position","dates_sw","litverz_sw","biblio_sw","pubplaces_sw","abkuerzungen_sw", "kw_anhang", "kw_inhalt", "kw_vgl")]
 
 full_table_clean <- full_table[complete.cases(full_table),]
-
+full_table_clean
 prediction <- predict(rf, full_table_clean)
-
+#Error in predict.randomForest(rf, full_table_clean) : variables in the training data missing in newdata
 full_table_clean$biblio_class <- prediction
 
-write_csv(full_table_clean, "data/20220302_proportions_bibliography_complete_pred.csv")
+write_csv(full_table_clean, "data/20220426_proportions_bibpred_RF2.csv")

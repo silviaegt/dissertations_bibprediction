@@ -1,6 +1,5 @@
 library(tidyverse)
 pred <- read_csv("data/20220302_proportions_bibliography_complete_pred.csv")
-names(pred)
 
 suspicious_tagging <- pred %>% 
   filter(biblio_class == 1) %>% 
