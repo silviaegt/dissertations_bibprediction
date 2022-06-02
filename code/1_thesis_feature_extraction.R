@@ -111,6 +111,9 @@ df1 <- tibble(
 df <- df1 %>% unnest(dates, dates_par, litverz, biblio, literatur, pubplaces, abkuerzungen, pub_fr, pub_paris, pub_ny, pub_mue, pub_stu, pub_tue, pub_ber, pub_lon, pub_wien, pub_cam,
                      pub_oxf, pub_ham, pub_darm, pub_lei, kw_hrsg, kw_ed, kw_bd, kw_nr, kw_ders, neg_ebd, neg_zb, neg_ver, neg_anh, words)
 
+#renombro esas columnas desennestadas
+names(df)<-names(df1)
+
 #desenlisto las variablas para poder hacer operaciones y cambiar de frec. absoluta a relativa, es decir,
 #sacar la proporción de i.e. fechas que aparecen en relación al total de palabras
 df2 <- tibble(
