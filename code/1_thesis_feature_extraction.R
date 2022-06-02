@@ -114,6 +114,8 @@ df <- df1 %>% unnest(dates, dates_par, litverz, biblio, literatur, pubplaces, ab
 #renombro esas columnas desennestadas
 names(df)<-names(df1)
 
+saveRDS(df, file = "data/df.rds")
+
 #desenlisto las variablas para poder hacer operaciones y cambiar de frec. absoluta a relativa, es decir,
 #sacar la proporción de i.e. fechas que aparecen en relación al total de palabras
 df2 <- tibble(
