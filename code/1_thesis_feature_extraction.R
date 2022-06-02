@@ -109,23 +109,22 @@ df1 <- tibble(
 
 #desennesto las variables que contienen una lista con los números
 df <- df1 %>% unnest(dates, dates_par, litverz, biblio, literatur, pubplaces, abkuerzungen, pub_fr, pub_paris, pub_ny, pub_mue, pub_stu, pub_tue, pub_ber, pub_lon, pub_wien, pub_cam,
-                     pub_oxf, pub_ham, pub_darm, pub_lei, kw_hrsg, kw_ed, kw_bd, kw_nr, kw_ders, neg_ebd, neg_zb, neg_ver, neg_anh, words)
+                     pub_oxf, pub_ham, pub_darm, pub_lei, pub_hei, kw_hrsg, kw_ed, kw_bd, kw_nr, kw_ders, neg_ebd, neg_zb, neg_ver, neg_anh, words)
 
 #renombro esas columnas desennestadas
 names(df)<-names(df1)
-
-saveRDS(df, file = "data/df.rds")
+#saveRDS(df, file = "data/df.rds")
+names(pub_)
 
 #desenlisto las variablas para poder hacer operaciones y cambiar de frec. absoluta a relativa, es decir,
 #sacar la proporción de i.e. fechas que aparecen en relación al total de palabras
 df2 <- tibble(
   pdf_name = unlist(df["pdf_name"]),
   dates = unlist(df["dates"])/unlist(df["words"]),
+  dates_par = unlist(df["dates_par"])/unlist(df["words"]),
   litverz = unlist(df["litverz"])/unlist(df["words"]),
   biblio = unlist(df["biblio"])/unlist(df["words"]),
-  sekundaerlit = unlist(df["sekundaerlit"])/unlist(df["words"]),
-  primaerlit = unlist(df["primaerlit"])/unlist(df["words"]),
-  waerke = unlist(df["waerke"])/unlist(df["words"]),
+  literatur = unlist(df["literatur"])/unlist(df["words"]),
   pubplaces = unlist(df["pubplaces"])/unlist(df["words"]),
   abkuerzungen = unlist(df["abkuerzungen"])/unlist(df["words"]),
   pub_fr = unlist(df["pub_fr"])/unlist(df["words"]),
@@ -135,14 +134,28 @@ df2 <- tibble(
   pub_stu  = unlist(df["pub_stu"])/unlist(df["words"]),
   pub_tue  = unlist(df["pub_tue"])/unlist(df["words"]),
   pub_ber  = unlist(df["pub_ber"])/unlist(df["words"]),
+  pub_lon  = unlist(df["pub_lon"])/unlist(df["words"]),
+  pub_wien = unlist(df["pub_wien"])/unlist(df["words"]),
+  pub_cam = unlist(df["pub_cam"])/unlist(df["words"]),
+  pub_oxf= unlist(df["pub_oxf"])/unlist(df["words"]),
+  pub_ham= unlist(df["pub_ham"])/unlist(df["words"]),
+  pub_darm= unlist(df["pub_darm"])/unlist(df["words"]),
+  pub_lei= unlist(df["pub_lei"])/unlist(df["words"]),
+  pub_hei= unlist(df["pub_hei"])/unlist(df["words"]),
   kw_hrsg  = unlist(df["kw_hrsg"])/unlist(df["words"]),
   kw_ed  = unlist(df["kw_ed"])/unlist(df["words"]),
   kw_bd  = unlist(df["kw_bd"])/unlist(df["words"]),
   kw_nr = unlist(df["kw_nr"])/unlist(df["words"]),
-  kw_ders = unlist(df["kw_ders"])/unlist(df["words"])
+  kw_ders = unlist(df["kw_ders"])/unlist(df["words"]),
+  neg_ebd = unlist(df["neg_ebd"])/unlist(df["words"]),
+  neg_zb= unlist(df["neg_zb"])/unlist(df["words"]),
+  neg_ver= unlist(df["neg_ver"])/unlist(df["words"]),
+  neg_anh= unlist(df["neg_anh"])/unlist(df["words"]),
 )
 
+
 #aquí hago una columna n_pag donde pongo el número de página por tesis (por eso hago el groupby)
+
 df2 <- df2 %>% group_by(pdf_name) %>% mutate(n_pag = row_number(pdf_name))
 
 #acá tomo el número más alto del count más alto para obtener cuántas páginas tiene el pdf
@@ -159,6 +172,6 @@ df3["position"] <- df3["n_pag"]/df3["n_pags"]
 
 
 #exporto el csv
-write_csv(df3, "proportions_bibliography_complete_20220228.csv")
+write_csv(df3, "data/proportions_bibliography_complete_20220528.csv")
 
 
