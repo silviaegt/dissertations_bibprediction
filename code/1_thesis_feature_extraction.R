@@ -65,8 +65,7 @@ thesis_ebd <- purrr::map(pdf_text, ~ lapply(stringr::str_extract_all(string = .x
 thesis_zb <- purrr::map(pdf_text, ~ lapply(stringr::str_extract_all(string = .x, "z.B"), length))
 thesis_vgl <- purrr::map(pdf_text, ~ lapply(stringr::str_extract_all(string = .x, "[V|g]l\\."), length))
 thesis_verzeichnis <- purrr::map(pdf_text, ~ lapply(stringr::str_extract_all(string = .x, "Inhaltsverzeichnis|Abbildungsverzeichnis|Anhang"), length))
-thesis_anhang <- purrr::map(pdf_text, ~ lapply(stringr::str_extract_all(string = .x, "Anhang"), length))
-
+thesis_negativ <- purrr::map(pdf_text, ~ lapply(stringr::str_extract_all(string = .x, "Inhaltsverzeichnis|Abbildungsverzeichnis|Anhang|ebda|ebenda|ebd|[V|g]l\\.|z.B"), length))
 #tomo el número total de palabras por página
 thesis_words <- purrr::map(pdf_text, ~ lapply(stringr::str_extract_all(string = .x, "\\b(\\w+)\\b"), length))
 
@@ -103,18 +102,17 @@ df1 <- tibble(
   neg_ebd = purrr::map(thesis_ebd, .f=tibble),
   neg_zb = purrr::map(thesis_zb, .f=tibble),
   neg_ver = purrr::map(thesis_verzeichnis, .f=tibble),
-  neg_anh = purrr::map(thesis_anhang, .f=tibble),
+  negativ = purrr::map(thesis_negativ, .f=tibble),
   words = purrr::map(thesis_words, .f=tibble)
 )
 
 #desennesto las variables que contienen una lista con los números
 df <- df1 %>% unnest(dates, dates_par, litverz, biblio, literatur, pubplaces, abkuerzungen, pub_fr, pub_paris, pub_ny, pub_mue, pub_stu, pub_tue, pub_ber, pub_lon, pub_wien, pub_cam,
-                     pub_oxf, pub_ham, pub_darm, pub_lei, pub_hei, kw_hrsg, kw_ed, kw_bd, kw_nr, kw_ders, neg_ebd, neg_zb, neg_ver, neg_anh, words)
+                     pub_oxf, pub_ham, pub_darm, pub_lei, pub_hei, kw_hrsg, kw_ed, kw_bd, kw_nr, kw_ders, neg_ebd, neg_zb, neg_ver, negativ, words)
 
 #renombro esas columnas desennestadas
 names(df)<-names(df1)
 #saveRDS(df, file = "data/df.rds")
-names(pub_)
 
 #desenlisto las variablas para poder hacer operaciones y cambiar de frec. absoluta a relativa, es decir,
 #sacar la proporción de i.e. fechas que aparecen en relación al total de palabras
@@ -150,7 +148,7 @@ df2 <- tibble(
   neg_ebd = unlist(df["neg_ebd"])/unlist(df["words"]),
   neg_zb= unlist(df["neg_zb"])/unlist(df["words"]),
   neg_ver= unlist(df["neg_ver"])/unlist(df["words"]),
-  neg_anh= unlist(df["neg_anh"])/unlist(df["words"]),
+  negativ = unlist(df["negativ"])/unlist(df["words"]),
 )
 
 
@@ -170,8 +168,37 @@ df3 <- left_join(df2, num_paginas, by ="pdf_name", suffix = c("", "s"))
 #aquí hago el cálculo
 df3["position"] <- df3["n_pag"]/df3["n_pags"]
 
+df3 <- df3 %>% 
+  ungroup() %>% 
+  mutate_all(~replace(., is.nan(.), 0))
+
+date_error <- df3 %>% 
+  group_by(pdf_name) %>%
+  summarise(dates_count = sum(dates)) %>% 
+  filter(dates_count == 0)
+
+# Linguistik ----
+
+# de_aw_1973_herberg_m linguistik
+# de_gaug_1999_reimar linguistik
+# de_hub_1998_steinbach_m linguistik
+# de_ut_2001_reinhard_f linguistik - nom:a1
+
+# Encoding problem----
+# de_fsuj_2014_herzog_f defektiv
+# de_jlu_2011_juli_f defektiv
+# de_uha_1999_jenssen_f defektiv
+# de_uk_1975_levin_m defektiv
+# de_wwu_1994_boronowski_m
+
+mistakes <- c("de_fsuj_2014_herzog_f", "de_jlu_2011_juli_f", "de_uha_1999_jenssen_f", "de_uk_1975_levin_m",
+              "de_wwu_1994_boronowski_m", "de_wwu_2004_voss_f", "de_jlu_2011_juli_f", "de_wwu_2004_voss_f", "de_ugs_2002_neuhausen_x", 
+              "de_ub_2001_bergold_f", "de_ub_2002_zehrer_m", "de_ub_2009_rytz_f", "de_ub_2012_bick_f", "de_ub_2014_bieberstein_f", "de_ub_2014_schumacher_f", "de_ub_2015_duking_f")
+df3_clean <- df3 %>% 
+  filter(!(pdf_name %in% mistakes | pdf_name %in% date_error$pdf_name))
 
 #exporto el csv
-write_csv(df3, "data/proportions_bibliography_complete_20220528.csv")
+write_csv(df3_clean, "data/proportions_bibliography_complete_20220603.csv")
+
 
 
