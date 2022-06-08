@@ -4,7 +4,7 @@ library("readr")
 library("zoo")
 library("factoextra")
 library("cluster")
-
+?kmeans
 # Load data
 thesis <- read_csv("2022_proportions_bibliography.csv")
 

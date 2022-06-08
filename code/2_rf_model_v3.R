@@ -68,14 +68,15 @@ rf <- randomForest(y=as.factor(train_table_clean$bibtest),
 plot(rf)
 rf$confusion
 importance <- as.data.frame(importance(rf, type=1))
-
+varImpPlot(rf)
 img <- varImpPlot(rf)
 img_df <- as.data.frame(img)
 # Add OOB prediction
 train_table_clean$bibtest_rf <- rf$predicted
 table(train_table_clean$bibtest, train_table_clean$bibtest)
 ?randomForest
-
+write.csv(img_df, "feature_relevancerf2.csv")
+?write_csv()
 # Other accuracy measures
 conf_matrix <- rf$confusion
 precision <- conf_matrix[2,2]/(sum(conf_matrix[2:1,2]))

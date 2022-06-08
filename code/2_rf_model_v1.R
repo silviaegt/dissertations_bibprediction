@@ -8,7 +8,10 @@ library("randomForest")
 
 # Load data
 thesis <- read_csv("data/20220219_bib_sample_etiquetado.csv")
-
+#thesis <- read_csv("data/20220603_bib_sample_etiquetado.csv")
+thesis %>% 
+  select(pdf_name) %>% 
+  unique()
 # Selected variables:
 # dates (proportion of dates vs total words on page)
 # litverz
@@ -44,7 +47,7 @@ for (i in 1:length(uniq_t)){
 }
 train_table
 train_table <- bind_rows(thesis_list, .id = "column_label")
-train_table <- train_table[,c("bibtest","dates","litverz","biblio","sekundaerlit","waerke","pubplaces",
+train_table <- train_table[,c("bibtest","dates","litverz","biblio","pubplaces",
                               "abkuerzungen","pub_fr","pub_paris","pub_ny","pub_mue","pub_stu","pub_tue","pub_ber","kw_hrsg",        
                               "kw_ed","kw_bd","kw_nr","kw_ders","n_pag", "position","dates_sw","litverz_sw","biblio_sw","pubplaces_sw","abkuerzungen_sw")]
 
@@ -60,6 +63,29 @@ rf <- randomForest(y=as.factor(train_table_clean$bibtest),
 plot(rf)
 rf$confusion
 varImpPlot(rf)
+?varImpPlot
+img <- varImpPlot(rf)
+img_df <- as.data.frame(img)
+write.csv(img_df, "feature_relevancerf1.csv")
+clipboard(img_df, row.names = TRUE)
+
+clipboard <- function(x, sep="\t", row.names=FALSE, col.names=TRUE){
+  con <- pipe("xclip -selection clipboard -i", open="w")
+  write.table(x, con, sep=sep, row.names=row.names, col.names=col.names)
+  close(con)
+}
+
+
+conf_matrix <- rf$confusion
+precision <- conf_matrix[2,2]/(sum(conf_matrix[2:1,2]))
+recall <- conf_matrix[2,2]/(sum(conf_matrix[2,1:2]))
+
+precision
+recall
+
+# F1 Score = 2 * (Precision * Recall) / (Precision + Recall)
+f1 <- 2 * (precision * recall) / (precision + recall)
+f1
 
 # Prediction on all thesis
 thesis <- read_csv("data/20220301_proportions_bibliography_complete.csv")
