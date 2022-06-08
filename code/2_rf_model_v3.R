@@ -5,7 +5,7 @@ library("zoo")
 library("cluster")
 library("dplyr")
 library("randomForest")
-
+citation("randomForest")
 # Load data
 thesis <- read_csv("data/20220603_bib_sample_etiquetado.csv")
 
